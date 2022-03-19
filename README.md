@@ -12,7 +12,7 @@
 
 - `tests/ammv2.ts`: 
     - intialize a new pool 
-    - add liqduidity (x3)
+    - add liquidity (x3)
     - remove liquidity 
     - swap 
     - remove liquidity 
