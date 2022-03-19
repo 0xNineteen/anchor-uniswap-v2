@@ -1,7 +1,6 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{
     token,
-    associated_token::AssociatedToken,
     token::{Mint, MintTo, Token, TokenAccount, Transfer, Burn},
 };
 
