@@ -1,0 +1,21 @@
+[package]
+name = "ammv2"
+version = "0.1.0"
+description = "Created with Anchor"
+edition = "2018"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "ammv2"
+
+[features]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["no-entrypoint"]
+default = []
+
+[dependencies]
+anchor-lang = "0.22.1"
+anchor-spl = {version = "0.22.1"}
+spl-token = {version = "3.3.0", features = ["no-entrypoint"]}
