@@ -6,6 +6,7 @@ use anchor_spl::{
 };
 
 use crate::state::PoolState;
+use crate::error::ErrorCode;
 
 pub fn add_liquidity(
     ctx: Context<LiquidityOperation>, 
@@ -20,8 +21,8 @@ pub fn add_liquidity(
     let user_balance1 = ctx.accounts.user1.amount; 
 
     // ensure enough balance 
-    require!(amount_liq0 <= user_balance0, NotEnoughBalance);
-    require!(amount_liq1 <= user_balance1, NotEnoughBalance);
+    require!(amount_liq0 <= user_balance0, ErrorCode::NotEnoughBalance);
+    require!(amount_liq1 <= user_balance1, ErrorCode::NotEnoughBalance);
 
     let vault_balance0 = ctx.accounts.vault0.amount;
     let vault_balance1 = ctx.accounts.vault1.amount;
@@ -47,7 +48,7 @@ pub fn add_liquidity(
         msg!("new deposits: {} {} {}", exchange01, amount_liq0, amount_deposit_1);
 
         // enough funds + user is ok with it in single check 
-        require!(amount_deposit_1 <= amount_liq1, NotEnoughBalance);
+        require!(amount_deposit_1 <= amount_liq1, ErrorCode::NotEnoughBalance);
         deposit1 = amount_deposit_1; // update liquidity amount ! 
 
         // mint = relative to the entire pool + total amount minted 
@@ -63,7 +64,7 @@ pub fn add_liquidity(
     }
 
     // saftey checks 
-    require!(amount_to_mint > 0, NoPoolMintOutput);
+    require!(amount_to_mint > 0, ErrorCode::NoPoolMintOutput);
 
     // give pool_mints 
     pool_state.total_amount_minted += amount_to_mint;
@@ -111,11 +112,11 @@ pub fn remove_liquidity(
 ) -> Result<()> {
 
     let pool_mint_balance = ctx.accounts.user_pool_ata.amount; 
-    require!(burn_amount <= pool_mint_balance, NotEnoughBalance);
+    require!(burn_amount <= pool_mint_balance, ErrorCode::NotEnoughBalance);
 
     let pool_key = ctx.accounts.pool_state.key();
     let state = &mut ctx.accounts.pool_state;
-    require!(state.total_amount_minted >= burn_amount, BurnTooMuch);
+    require!(state.total_amount_minted >= burn_amount, ErrorCode::BurnTooMuch);
     
     let vault0_amount = ctx.accounts.vault0.amount as u128;
     let vault1_amount = ctx.accounts.vault1.amount as u128;

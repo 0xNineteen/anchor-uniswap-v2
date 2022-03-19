@@ -1,15 +1,8 @@
 use anchor_lang::prelude::*;
-use anchor_spl::{
-    token,
-    token::{Mint, MintTo, Token, TokenAccount, Transfer, Burn},
-};
 
 pub mod error; 
 pub mod state; 
 pub mod instructions;
-
-use state::PoolState;
-use error::ErrorCode;
 
 use instructions::*;
 

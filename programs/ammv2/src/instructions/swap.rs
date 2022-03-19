@@ -5,6 +5,7 @@ use anchor_spl::{
 };
 
 use crate::state::PoolState;
+use crate::error::ErrorCode;
 
 pub fn swap(
     ctx: Context<Swap>, 
@@ -13,7 +14,7 @@ pub fn swap(
 ) -> Result<()> {
 
     let src_balance = ctx.accounts.user_src.amount;
-    require!(src_balance >= amount_in, NotEnoughBalance);
+    require!(src_balance >= amount_in, ErrorCode::NotEnoughBalance);
 
     let u128_amount_in = amount_in as u128;
 
@@ -34,7 +35,7 @@ pub fn swap(
     let output_amount = dst_vault_amount.checked_sub(new_dst_vault).unwrap();
 
     // revert if not enough out
-    require!(output_amount >= min_amount_out as u128, NotEnoughOut);
+    require!(output_amount >= min_amount_out as u128, ErrorCode::NotEnoughOut);
 
     // output_amount -> user_dst
     let bump = *ctx.bumps.get("pool_authority").unwrap();
