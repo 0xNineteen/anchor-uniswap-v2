@@ -184,7 +184,7 @@ describe("ammv2", () => {
         user0: user0, 
         user1: user1, 
         userPoolAta: poolAta,
-        signer: lp_user,
+        owner: lp_user,
         // other stuff
         tokenProgram: token.TOKEN_PROGRAM_ID, 
       },
@@ -240,7 +240,7 @@ describe("ammv2", () => {
         user0: user0, 
         user1: user1, 
         userPoolAta: poolAta,
-        signer: lp_user,
+        owner: lp_user,
         // other stuff
         tokenProgram: token.TOKEN_PROGRAM_ID, 
       },
@@ -288,7 +288,7 @@ describe("ammv2", () => {
         user0: user0, 
         user1: user1, 
         userPoolAta: poolAta,
-        signer: lp_user,
+        owner: lp_user,
         // other stuff
         tokenProgram: token.TOKEN_PROGRAM_ID, 
       },
@@ -336,7 +336,7 @@ describe("ammv2", () => {
         user0: lp_user0.user0, 
         user1: lp_user0.user1, 
         userPoolAta: lp_user0.poolAta,
-        signer: lp_user0.signer.publicKey,
+        owner: lp_user0.signer.publicKey,
         // other stuff
         tokenProgram: token.TOKEN_PROGRAM_ID, 
       },
@@ -388,6 +388,7 @@ describe("ammv2", () => {
       let b0 = await get_token_balance(mint0_ata);
       let b1 = await get_token_balance(mint1_ata);
       
+      // token0 -> token1
       await program.rpc.swap(new anchor.BN(10 * 10 ** n_decimals), new anchor.BN(0),{
         accounts: {
             poolState: pool.poolState,
@@ -396,7 +397,7 @@ describe("ammv2", () => {
             vaultDst: pool.vault1,
             userSrc: mint0_ata,
             userDst: mint1_ata,
-            signer: swapper,
+            owner: swapper,
             tokenProgram: token.TOKEN_PROGRAM_ID,
         },
         signers: [swapper_signer]
@@ -427,7 +428,7 @@ describe("ammv2", () => {
         user0: lp_user1.user0, 
         user1: lp_user1.user1, 
         userPoolAta: lp_user1.poolAta,
-        signer: lp_user1.signer.publicKey,
+        owner: lp_user1.signer.publicKey,
         // other stuff
         tokenProgram: token.TOKEN_PROGRAM_ID, 
       },

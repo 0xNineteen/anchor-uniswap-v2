@@ -5,6 +5,8 @@ use anchor_spl::{
     token::{Mint, MintTo, Token, TokenAccount, Transfer, Burn},
 };
 
+pub mod error; 
+use crate::error::ErrorCode;
 
 declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 
@@ -79,7 +81,7 @@ pub mod ammv2 {
             Burn { 
                 mint: ctx.accounts.pool_mint.to_account_info(), 
                 to: ctx.accounts.user_pool_ata.to_account_info(), 
-                authority:  ctx.accounts.signer.to_account_info(),
+                authority:  ctx.accounts.owner.to_account_info(),
             }
         ).with_signer(&[pda_sign]), burn_amount)?;
 
@@ -170,7 +172,7 @@ pub mod ammv2 {
             Transfer {
                 from: ctx.accounts.user0.to_account_info(), 
                 to: ctx.accounts.vault0.to_account_info(),
-                authority: ctx.accounts.signer.to_account_info(), 
+                authority: ctx.accounts.owner.to_account_info(), 
             }
         ), deposit0)?;
 
@@ -179,7 +181,7 @@ pub mod ammv2 {
             Transfer {
                 from: ctx.accounts.user1.to_account_info(), 
                 to: ctx.accounts.vault1.to_account_info(),
-                authority: ctx.accounts.signer.to_account_info(), 
+                authority: ctx.accounts.owner.to_account_info(), 
             }
         ), deposit1)?;
 
@@ -236,7 +238,7 @@ pub mod ammv2 {
             Transfer {
                 from: ctx.accounts.user_src.to_account_info(), 
                 to: ctx.accounts.vault_src.to_account_info(),
-                authority: ctx.accounts.signer.to_account_info(), 
+                authority: ctx.accounts.owner.to_account_info(), 
             }
         ), amount_in)?;
 
@@ -245,7 +247,7 @@ pub mod ammv2 {
 }
 
 #[derive(Accounts)]
-pub struct  Swap<'info> {
+pub struct Swap<'info> {
 
     // pool token accounts 
     #[account(mut)]
@@ -253,17 +255,27 @@ pub struct  Swap<'info> {
 
     #[account(mut, seeds=[b"authority", pool_state.key().as_ref()], bump)]
     pub pool_authority: AccountInfo<'info>,
-    #[account(mut)]
+    #[account(mut, 
+        constraint=vault_src.owner == pool_authority.key(),
+        constraint=vault_src.mint == user_src.mint,
+    )]
     pub vault_src: Box<Account<'info, TokenAccount>>, 
-    #[account(mut)]
+    #[account(mut, 
+        constraint=vault_dst.owner == pool_authority.key(),
+        constraint=vault_src.mint == user_src.mint,
+    )]
     pub vault_dst: Box<Account<'info, TokenAccount>>,
     
     // user token accounts 
-    #[account(mut)]
+    #[account(mut,
+        has_one=owner,
+    )]
     pub user_src: Box<Account<'info, TokenAccount>>, 
-    #[account(mut)]
+    #[account(mut,
+        has_one=owner,
+    )]
     pub user_dst: Box<Account<'info, TokenAccount>>, 
-    pub signer: Signer<'info>,
+    pub owner: Signer<'info>,
 
     // other 
     pub token_program: Program<'info, Token>,
@@ -278,21 +290,27 @@ pub struct LiquidityOperation<'info> {
     
     #[account(seeds=[b"authority", pool_state.key().as_ref()], bump)]
     pub pool_authority: AccountInfo<'info>,
-    #[account(mut, seeds=[b"vault0", pool_state.key().as_ref()], bump)]
+    #[account(mut, 
+        constraint = vault0.mint == user0.mint,
+        seeds=[b"vault0", pool_state.key().as_ref()], bump)]
     pub vault0: Box<Account<'info, TokenAccount>>, 
-    #[account(mut, seeds=[b"vault1", pool_state.key().as_ref()], bump)]
+    #[account(mut, 
+        constraint = vault1.mint == user1.mint,
+        seeds=[b"vault1", pool_state.key().as_ref()], bump)]
     pub vault1: Box<Account<'info, TokenAccount>>,
-    #[account(mut, seeds=[b"pool_mint", pool_state.key().as_ref()], bump)]
+    #[account(mut, 
+        constraint = user_pool_ata.mint == pool_mint.key(),
+        seeds=[b"pool_mint", pool_state.key().as_ref()], bump)]
     pub pool_mint: Box<Account<'info, Mint>>,  
     
     // user token accounts 
-    #[account(mut)]
+    #[account(mut, has_one = owner)]
     pub user0: Box<Account<'info, TokenAccount>>, 
-    #[account(mut)]
+    #[account(mut, has_one = owner)]
     pub user1: Box<Account<'info, TokenAccount>>, 
-    #[account(mut)]
+    #[account(mut, has_one = owner)]
     pub user_pool_ata: Box<Account<'info, TokenAccount>>, 
-    pub signer: Signer<'info>,
+    pub owner: Signer<'info>,
 
     // other 
     pub token_program: Program<'info, Token>,
@@ -363,16 +381,4 @@ pub struct PoolState {
     pub total_amount_minted: u64, 
     pub fee_numerator: u64, 
     pub fee_denominator: u64,
-}
-
-#[error_code]
-pub enum ErrorCode {
-    #[msg("Src Balance < LP Deposit Amount.")]
-    NotEnoughBalance,
-    #[msg("Pool Mint Amount < 0 on LP Deposit")]
-    NoPoolMintOutput,
-    #[msg("Trying to burn too much")]
-    BurnTooMuch,
-    #[msg("Not enough out")]
-    NotEnoughOut,
 }
