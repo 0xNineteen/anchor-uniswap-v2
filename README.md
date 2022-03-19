@@ -7,6 +7,7 @@
         - `init_pool.rs`: initialize a new pool
         - `liqduidity.rs`: add and remove liquidity 
         - `swap.rs`: perform a token swap 
+    - `draft.rs`: outline of program with comments -- drafted before implementation 
 
 ## Implemented Tests 
 
