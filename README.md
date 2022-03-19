@@ -1,6 +1,6 @@
 # Uniswap V2 AMM implemented in Anchor
 
-- `draft.rs`: outline of program with comments -- drafted before implementation 
+- `programs/ammv2/src/draft.rs`: outline of program with comments -- drafted before implementation 
 
 ## Supported Instructions 
 
