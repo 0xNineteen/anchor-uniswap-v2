@@ -42,9 +42,9 @@ pub fn add_liquidity(
         deposit1 = amount_liq1;
     } else { 
         // require equal amount deposit based on pool exchange rate 
-        let exchange01 = vault_balance0.checked_div(vault_balance1).unwrap();
-        let amount_deposit_1 = amount_liq0.checked_mul(exchange01).unwrap();
-        msg!("new deposits: {} {} {}", exchange01, amount_liq0, amount_deposit_1);
+        let exchange10 = vault_balance1.checked_div(vault_balance0).unwrap();
+        let amount_deposit_1 = amount_liq0.checked_mul(exchange10).unwrap();
+        msg!("new deposits: {} {} {}", exchange10, amount_liq0, amount_deposit_1);
 
         // enough funds + user is ok with it in single check 
         require!(amount_deposit_1 <= amount_liq1, ErrorCode::NotEnoughBalance);
